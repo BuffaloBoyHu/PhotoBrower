@@ -8,7 +8,7 @@
 
 import UIKit
 
-fileprivate let animationDuration = 0.2
+let animationDuration = 0.3
 
 enum PBStyle : NSInteger {
     case defaultStyle // 默认都显示
@@ -20,7 +20,6 @@ class PBPageViewController: UIPageViewController,UIPageViewControllerDataSource 
     
     var sourceData : NSArray? = nil
     var currentIndex : NSInteger = 0
-    var isStatusBarHidden :Bool = true
     fileprivate var childArray : NSMutableArray? = []
     
     init(sourceData :NSArray?,currentPhotoUrl:String) {
@@ -35,15 +34,12 @@ class PBPageViewController: UIPageViewController,UIPageViewControllerDataSource 
     
     override func viewDidLoad() {
         super.viewDidLoad()
-//        UIApplication.shared.setStatusBarHidden(true, with: .none)
-//        UINavigationBar.appearance().isHidden = true
         self.dataSource = self
         self.view.backgroundColor = .black
-        self.isStatusBarHidden = true
         self.addChildViewControllers()
         
-        let tapGesture = UITapGestureRecognizer.init(target: self, action: #selector(tapGestureAction))
-        self.view.addGestureRecognizer(tapGesture)
+//        let tapGesture = UITapGestureRecognizer.init(target: self, action: #selector(tapGestureAction))
+//        self.view.addGestureRecognizer(tapGesture)
         
     }
 
@@ -59,11 +55,15 @@ class PBPageViewController: UIPageViewController,UIPageViewControllerDataSource 
         }
         self.view.removeFromSuperview()
         self.removeFromParentViewController()
+        UIApplication.shared.setStatusBarHidden(false, with: .none)
     }
     
     fileprivate func addChildViewControllers() {
        self.sourceData?.enumerateObjects({[unowned self] (object, index, _) in
             let childController = PBChiledViewController.init(data: object)
+        childController.dismissBlock = {[unowned self] in
+            self.hide()
+        }
             self.childArray?.add(childController)
        })
         
@@ -75,13 +75,11 @@ class PBPageViewController: UIPageViewController,UIPageViewControllerDataSource 
         self.hide()
     }
     
-    
-    
     //MARK: public function
     public func showInViewController(viewController :UIViewController, style:PBStyle) {
+        UIApplication.shared.setStatusBarHidden(true, with: .none)
         viewController.addChildViewController(self)
         viewController.view.addSubview(self.view)
-        
         UIView.animate(withDuration: animationDuration) {
             self.view.alpha = 1
         }

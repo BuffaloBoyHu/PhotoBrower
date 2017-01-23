@@ -9,7 +9,11 @@
 import UIKit
 import SDWebImage.UIImageView_WebCache
 
-class PBChiledViewController: UIViewController,UIScrollViewDelegate {
+fileprivate let DurationTime = 0.5
+
+class PBChiledViewController: UIViewController,UIScrollViewDelegate,UIGestureRecognizerDelegate {
+   
+    var dismissBlock :(() -> Void)?
    fileprivate let scrollView = UIScrollView.init() // 通过scrollview实现图片的放大缩小功能
    fileprivate let pregressLabel = UILabel.init() // 进度
    fileprivate let shareBtn = UIButton.init() // 分享按钮
@@ -43,21 +47,23 @@ class PBChiledViewController: UIViewController,UIScrollViewDelegate {
     
     //MARK:  初始化子视图
    fileprivate func initSubView() {
-        self.view.backgroundColor = UIColor.black
-        
-        self.scrollView.backgroundColor = .black
+//        self.view.backgroundColor = UIColor.black
+    
         self.scrollView.showsVerticalScrollIndicator = false
         self.scrollView.showsHorizontalScrollIndicator = false
         self.scrollView.frame = self.view.bounds
         self.scrollView.minimumZoomScale = 1
         self.scrollView.maximumZoomScale = 3
         self.scrollView.delegate = self
+        self.scrollView.backgroundColor = .clear
         self.view.addSubview(self.scrollView)
     
         self.imageView.contentMode = .scaleAspectFit
+//        self.imageView.isUserInteractionEnabled = true
         self.scrollView.addSubview(self.imageView)
     
-        
+        self.addGestureForView(view: self.view)
+    
     }
     
     fileprivate func loadImageWithUrl(urlStr :String) {
@@ -84,6 +90,56 @@ class PBChiledViewController: UIViewController,UIScrollViewDelegate {
         return size
     }
     
+    //MARK: 手势
+    fileprivate func addGestureForView(view :UIView) {
+        // 拖拽手势
+        let panGesture = UIPanGestureRecognizer.init(target: self, action: #selector(panGestureAction(sender:)))
+        panGesture.delegate = self
+        view.addGestureRecognizer(panGesture)
+        
+        // 点击手势
+        let tapGesture = UITapGestureRecognizer.init(target: self, action: #selector(tapAction))
+        view.addGestureRecognizer(tapGesture)
+        
+    }
+    
+    @objc fileprivate func tapAction() {
+        self.dismissBlock!()
+    }
+    
+    @objc fileprivate func panGestureAction(sender :UIPanGestureRecognizer) {
+        if self.scrollView.zoomScale > 1.1 {
+            return
+        }
+        let offset = sender.translation(in: sender.view)
+        let velocity = sender.velocity(in: sender.view)
+        let screenSize = UIScreen.main.bounds.size
+        
+        if sender.state == .changed {
+            let alpha = 1 - fabs(offset.y) / (screenSize.height / 2)
+            self.parent?.view.backgroundColor = UIColor.init(white: 0, alpha: alpha)
+            self.imageView.transform = CGAffineTransform.init(translationX: 0, y: offset.y)
+            
+        }else if sender.state == .ended || sender.state == .cancelled {
+            if fabs(offset.y) >= 200 || fabs(velocity.y) >= 500 {
+                let toY = offset.y > 0 ? screenSize.height : -screenSize.height
+                UIView.animate(withDuration: DurationTime, animations: {
+                    self.imageView.transform = CGAffineTransform.init(translationX: 0, y: toY)
+                    self.parent?.view.backgroundColor = .clear
+                    
+                }, completion: { (isFinished) in
+                    self.dismissBlock!()
+                })
+            }else {
+                UIView.animate(withDuration: animationDuration, animations: { 
+                    self.imageView.transform = CGAffineTransform.identity
+                    self.parent?.view.backgroundColor = .black
+                })
+            }
+        }
+        
+    }
+    
     
     //MARK: UIScrollViewDelegate
     func scrollViewDidZoom(_ scrollView: UIScrollView) {
@@ -97,5 +153,25 @@ class PBChiledViewController: UIViewController,UIScrollViewDelegate {
     func viewForZooming(in scrollView: UIScrollView) -> UIView? {
         return self.imageView
     }
+    
+//    func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldReceive touch: UITouch) -> Bool {
+//        if gestureRecognizer.isKind(of: UIPanGestureRecognizer.self) {
+//            let panGesture = gestureRecognizer as! UIPanGestureRecognizer
+//            let offset = panGesture.translation(in: panGesture.view)
+//            return fabs(offset.y) > fabs(offset.x) ? false : true
+//        }
+//        return true
+//    }
+//    
+//    func gestureRecognizerShouldBegin(_ gestureRecognizer: UIGestureRecognizer) -> Bool {
+//        if let panGesture = gestureRecognizer as? UIPanGestureRecognizer {
+//            let offset = panGesture.translation(in: panGesture.view)
+//            if fabs(offset.y) < fabs(offset.x) {
+//                return true
+//            }
+//        }
+//        return false
+//    }
+    
 
 }
