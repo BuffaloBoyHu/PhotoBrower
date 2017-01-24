@@ -13,17 +13,15 @@ fileprivate let DurationTime = 0.5
 
 class PBChiledViewController: UIViewController,UIScrollViewDelegate,UIGestureRecognizerDelegate {
    
-    var dismissBlock :(() -> Void)?
+    var dismissBlock :(() -> Void)? 
+    var progressBlock :((_ index :NSInteger) -> Void)? // 更新进度
+    var tag : NSInteger? = 0
    fileprivate let scrollView = UIScrollView.init() // 通过scrollview实现图片的放大缩小功能
-   fileprivate let pregressLabel = UILabel.init() // 进度
-   fileprivate let shareBtn = UIButton.init() // 分享按钮
-   fileprivate let saveBtn  = UIButton.init() // 保存按钮
-   fileprivate let textLabel = UILabel.init() // 简介
    fileprivate var imageView :UIImageView = UIImageView.init() // 显示的图片
     
-    init(data :Any,style :PBStyle) {
+    init(data :Any) {
         super.init(nibName: nil, bundle: nil)
-        self.initSubView(style: style)
+        self.initSubView()
         if let urlStr = data as? String {
             self.loadImageWithUrl(urlStr: urlStr)
         }
@@ -36,8 +34,10 @@ class PBChiledViewController: UIViewController,UIScrollViewDelegate,UIGestureRec
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        
-        
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        self.progressBlock!(self.tag!)
     }
 
     override func didReceiveMemoryWarning() {
@@ -46,7 +46,7 @@ class PBChiledViewController: UIViewController,UIScrollViewDelegate,UIGestureRec
     }
     
     //MARK:  初始化子视图
-    fileprivate func initSubView(style :PBStyle) {
+    fileprivate func initSubView() {
     
         self.scrollView.showsVerticalScrollIndicator = false
         self.scrollView.showsHorizontalScrollIndicator = false
