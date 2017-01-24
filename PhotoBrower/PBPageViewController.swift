@@ -20,6 +20,7 @@ class PBPageViewController: UIPageViewController,UIPageViewControllerDataSource 
     
     var sourceData : NSArray? = nil
     var currentIndex : NSInteger = 0
+    var showStyle : PBStyle = .NoTextStyle
     fileprivate var childArray : NSMutableArray? = []
     
     init(sourceData :NSArray?,currentPhotoUrl:String) {
@@ -60,7 +61,7 @@ class PBPageViewController: UIPageViewController,UIPageViewControllerDataSource 
     
     fileprivate func addChildViewControllers() {
        self.sourceData?.enumerateObjects({[unowned self] (object, index, _) in
-            let childController = PBChiledViewController.init(data: object)
+            let childController = PBChiledViewController.init(data: object, style: self.showStyle)
         childController.dismissBlock = {[unowned self] in
             self.hide()
         }

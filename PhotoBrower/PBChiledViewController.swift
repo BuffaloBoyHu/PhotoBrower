@@ -21,9 +21,9 @@ class PBChiledViewController: UIViewController,UIScrollViewDelegate,UIGestureRec
    fileprivate let textLabel = UILabel.init() // 简介
    fileprivate var imageView :UIImageView = UIImageView.init() // 显示的图片
     
-    init(data :Any) {
+    init(data :Any,style :PBStyle) {
         super.init(nibName: nil, bundle: nil)
-        self.initSubView()
+        self.initSubView(style: style)
         if let urlStr = data as? String {
             self.loadImageWithUrl(urlStr: urlStr)
         }
@@ -46,8 +46,7 @@ class PBChiledViewController: UIViewController,UIScrollViewDelegate,UIGestureRec
     }
     
     //MARK:  初始化子视图
-   fileprivate func initSubView() {
-//        self.view.backgroundColor = UIColor.black
+    fileprivate func initSubView(style :PBStyle) {
     
         self.scrollView.showsVerticalScrollIndicator = false
         self.scrollView.showsHorizontalScrollIndicator = false
@@ -59,11 +58,15 @@ class PBChiledViewController: UIViewController,UIScrollViewDelegate,UIGestureRec
         self.view.addSubview(self.scrollView)
     
         self.imageView.contentMode = .scaleAspectFit
-//        self.imageView.isUserInteractionEnabled = true
         self.scrollView.addSubview(self.imageView)
-    
+        
+        // 添加手势
         self.addGestureForView(view: self.view)
     
+    }
+    
+    override func viewWillLayoutSubviews() {
+        
     }
     
     fileprivate func loadImageWithUrl(urlStr :String) {
@@ -99,6 +102,7 @@ class PBChiledViewController: UIViewController,UIScrollViewDelegate,UIGestureRec
         
         // 点击手势
         let tapGesture = UITapGestureRecognizer.init(target: self, action: #selector(tapAction))
+        tapGesture.delegate = self
         view.addGestureRecognizer(tapGesture)
         
     }
@@ -154,24 +158,28 @@ class PBChiledViewController: UIViewController,UIScrollViewDelegate,UIGestureRec
         return self.imageView
     }
     
-//    func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldReceive touch: UITouch) -> Bool {
-//        if gestureRecognizer.isKind(of: UIPanGestureRecognizer.self) {
-//            let panGesture = gestureRecognizer as! UIPanGestureRecognizer
-//            let offset = panGesture.translation(in: panGesture.view)
-//            return fabs(offset.y) > fabs(offset.x) ? false : true
-//        }
-//        return true
-//    }
-//    
-//    func gestureRecognizerShouldBegin(_ gestureRecognizer: UIGestureRecognizer) -> Bool {
-//        if let panGesture = gestureRecognizer as? UIPanGestureRecognizer {
-//            let offset = panGesture.translation(in: panGesture.view)
-//            if fabs(offset.y) < fabs(offset.x) {
-//                return true
-//            }
-//        }
-//        return false
-//    }
+    //MARK: 手势冲突
+    func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldReceive touch: UITouch) -> Bool {
+        // touch事件是scrollview的进行拦截
+        if (touch.view?.isKind(of: UIScrollView.self))! {
+            return true
+        }
+        return false
+        
+    }
+    
+    func gestureRecognizerShouldBegin(_ gestureRecognizer: UIGestureRecognizer) -> Bool {
+        if gestureRecognizer.isKind(of: UITapGestureRecognizer.self) {
+            return true
+        }else if let panGesture = gestureRecognizer as? UIPanGestureRecognizer {
+            // 如果不是上下拖拽不识别手势
+            let offset = panGesture.translation(in: panGesture.view)
+            if fabs(offset.y) < fabs(offset.x) {
+                return false
+            }
+        }
+        return true
+    }
     
 
 }
