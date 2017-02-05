@@ -26,6 +26,9 @@ class PBPageViewController: UIPageViewController,UIPageViewControllerDataSource 
     fileprivate var progressLabel = UILabel.init() // 进度
     fileprivate var textLabel = UILabel.init() // 简介
     fileprivate var childArray : NSMutableArray? = [] // 子视图数组
+    var savePhotoAction : ((Void) ->Void)? // 图片保存
+    var sharePhotoAction :((Void) ->Void)? // 图片分享
+    
     
     init(sourceData :NSArray?,currentPhotoUrl:String,showStyle :PBStyle) {
         super.init(transitionStyle: .scroll, navigationOrientation: .horizontal, options: [UIPageViewControllerOptionInterPageSpacingKey : 20])
@@ -146,7 +149,25 @@ class PBPageViewController: UIPageViewController,UIPageViewControllerDataSource 
     }
     
     @objc fileprivate func btnAction(sender :UIButton) {
+        let titleStr = sender.title(for: .normal)
+        if titleStr == "保存" {
+            if let childController  = self.childArray?[self.currentIndex] as? PBChiledViewController {
+                UIImageWriteToSavedPhotosAlbum(childController.imageView.image!, self, #selector(didFinishSavingPhoto(image:error:info:)), nil)
+            }
+        }
         
+    }
+    
+    //MARK: private function
+    @objc fileprivate func didFinishSavingPhoto(image:UIImage,error:NSError?,info : Any) {
+        if error  == nil {
+            let alertView : UIAlertView = UIAlertView.init(title: "保存成功", message: nil, delegate: nil, cancelButtonTitle: "确定")
+            alertView.show()
+            
+        }else {
+            let alertView : UIAlertView = UIAlertView.init(title: "保存失败", message: nil, delegate: nil, cancelButtonTitle: "确定")
+            alertView.show()
+        }
     }
     
     //MARK: public function

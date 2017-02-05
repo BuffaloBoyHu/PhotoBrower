@@ -16,8 +16,8 @@ class PBChiledViewController: UIViewController,UIScrollViewDelegate,UIGestureRec
     var dismissBlock :(() -> Void)? 
     var progressBlock :((_ index :NSInteger) -> Void)? // 更新进度
     var tag : NSInteger? = 0
-   fileprivate let scrollView = UIScrollView.init() // 通过scrollview实现图片的放大缩小功能
-   fileprivate var imageView :UIImageView = UIImageView.init() // 显示的图片
+    internal var imageView :UIImageView = UIImageView.init() // 显示的图片
+    fileprivate let scrollView = UIScrollView.init() // 通过scrollview实现图片的放大缩小功能
     
     init(data :Any) {
         super.init(nibName: nil, bundle: nil)
@@ -71,15 +71,17 @@ class PBChiledViewController: UIViewController,UIScrollViewDelegate,UIGestureRec
     
     fileprivate func loadImageWithUrl(urlStr :String) {
         self.imageView.sd_setImage(with: URL.init(string: urlStr)) { (image, _, _, _) in
-            let imageSize = self.convertSizeToFit(size: (image?.size)!)
-            self.scrollView.contentSize = imageSize
-            DispatchQueue.main.async {
-                var frame = CGRect.zero
-                frame.size = imageSize
-                self.imageView.frame = frame
-                self.imageView.center = self.scrollView.center
-            }
             
+            if image != nil {
+                let imageSize = self.convertSizeToFit(size: (image?.size)!)
+                self.scrollView.contentSize = imageSize
+                DispatchQueue.main.async {
+                    var frame = CGRect.zero
+                    frame.size = imageSize
+                    self.imageView.frame = frame
+                    self.imageView.center = self.scrollView.center
+                }   
+            }
         }
         
     }

@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>SchemeUserState</key>
+	<dict>
+		<key>Pods-PhotoBrower.xcscheme</key>
+		<dict>
+			<key>orderHint</key>
+			<integer>1</integer>
+		</dict>
+		<key>Pods-PhotoBrowerTests.xcscheme</key>
+		<dict>
+			<key>orderHint</key>
+			<integer>2</integer>
+		</dict>
+		<key>Pods-PhotoBrowerUITests.xcscheme</key>
+		<dict>
+			<key>orderHint</key>
+			<integer>3</integer>
+		</dict>
+		<key>SDWebImage.xcscheme</key>
+		<dict>
+			<key>orderHint</key>
+			<integer>4</integer>
+		</dict>
+	</dict>
+	<key>SuppressBuildableAutocreation</key>
+	<dict>
+		<key>4B669E287E7E27EF2832EAC709B09A5C</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+		</dict>
+		<key>54AD2E5E75537EA35C5339FAFE73AC56</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+		</dict>
+		<key>7EC4A57D1DC69A51411D3CEACD5CB529</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+		</dict>
+		<key>C40871BFCC2242C9BA22E54D53863AC6</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+		</dict>
+	</dict>
+</dict>
+</plist>
