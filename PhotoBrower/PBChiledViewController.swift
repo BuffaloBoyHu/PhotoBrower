@@ -13,7 +13,9 @@ fileprivate let DurationTime = 0.5
 
 class PBChiledViewController: UIViewController,UIScrollViewDelegate,UIGestureRecognizerDelegate {
    
-    var dismissBlock :(() -> Void)? 
+    var dismissBlock :(() -> Void)? // 隐藏图片浏览整个控件
+    var hideOtherComponent :((_ isHidden : Bool) -> Void)?// 隐藏分享和保存按钮等控件
+    var updateAbstractViewFrame :((_ imageFrame :CGRect) -> Void)? // 更新简介视图位置
     var progressBlock :((_ index :NSInteger) -> Void)? // 更新进度
     var tag : NSInteger? = 0
     internal var imageView :UIImageView = UIImageView.init() // 显示的图片
@@ -80,6 +82,7 @@ class PBChiledViewController: UIViewController,UIScrollViewDelegate,UIGestureRec
                     frame.size = imageSize
                     self.imageView.frame = frame
                     self.imageView.center = self.scrollView.center
+                    self.updateAbstractViewFrame?(self.imageView.frame)
                 }   
             }
         }
@@ -125,7 +128,7 @@ class PBChiledViewController: UIViewController,UIScrollViewDelegate,UIGestureRec
             let alpha = 1 - fabs(offset.y) / (screenSize.height / 2)
             self.parent?.view.backgroundColor = UIColor.init(white: 0, alpha: alpha)
             self.imageView.transform = CGAffineTransform.init(translationX: 0, y: offset.y)
-            
+            self.hideOtherComponent!(true)
         }else if sender.state == .ended || sender.state == .cancelled {
             if fabs(offset.y) >= 200 || fabs(velocity.y) >= 500 {
                 let toY = offset.y > 0 ? screenSize.height : -screenSize.height
@@ -140,6 +143,7 @@ class PBChiledViewController: UIViewController,UIScrollViewDelegate,UIGestureRec
                 UIView.animate(withDuration: animationDuration, animations: { 
                     self.imageView.transform = CGAffineTransform.identity
                     self.parent?.view.backgroundColor = .black
+                    self.hideOtherComponent!(false)
                 })
             }
         }

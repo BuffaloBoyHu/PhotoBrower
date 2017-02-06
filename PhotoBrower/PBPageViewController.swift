@@ -10,25 +10,27 @@ import UIKit
 
 let animationDuration = 0.3
 
-enum PBStyle : NSInteger {
+@objc enum PBStyle : NSInteger {
     case defaultStyle // 默认都显示
-    case NoTextStyle // 没有简介
+    case NoAbstractStyle // 没有简介
     case OnlyPhotoStyle // 只显示图片
 }
+
+@objc(PBPageViewController)
 
 class PBPageViewController: UIPageViewController,UIPageViewControllerDataSource {
     
     fileprivate var sourceData : NSArray? = nil
-    dynamic fileprivate var currentIndex : NSInteger = 0
+    fileprivate var currentIndex : NSInteger = 0
     fileprivate var showStyle : PBStyle? = .OnlyPhotoStyle
-    fileprivate var shareBtn = UIButton.init(type: UIButtonType.roundedRect) // 分享
-    fileprivate var saveBtn = UIButton.init(type: UIButtonType.roundedRect) // 保存
-    fileprivate var progressLabel = UILabel.init() // 进度
-    fileprivate var textLabel = UILabel.init() // 简介
     fileprivate var childArray : NSMutableArray? = [] // 子视图数组
-    var savePhotoAction : ((Void) ->Void)? // 图片保存
+    fileprivate var isNeedUpadteAbstract :Bool = false // 是否更新简介位置
     var sharePhotoAction :((Void) ->Void)? // 图片分享
-    
+    var shareBtn = UIButton.init(type: UIButtonType.roundedRect) // 分享
+    var saveBtn = UIButton.init(type: UIButtonType.roundedRect) // 保存
+    var progressLabel = UILabel.init() // 进度
+    var abstractView = UITextView.init() // 简介
+    var reLayoutSubView :(() -> Void)? //重新布局保存和分享按钮等位置
     
     init(sourceData :NSArray?,currentPhotoUrl:String,showStyle :PBStyle) {
         super.init(transitionStyle: .scroll, navigationOrientation: .horizontal, options: [UIPageViewControllerOptionInterPageSpacingKey : 20])
@@ -71,17 +73,20 @@ class PBPageViewController: UIPageViewController,UIPageViewControllerDataSource 
             self.shareBtn.frame = frame
             
             frame = self.saveBtn.frame
-            frame.origin.x = viewSize.width - 20 - 30
+            frame.origin.x = viewSize.width - 20 - 50
             frame.origin.y = viewSize.height - 20 - 20
             frame.size = CGSize.init(width: 50, height: 30)
             self.saveBtn.frame = frame
             
-            frame = self.textLabel.frame
+            frame = self.abstractView.frame
             frame.origin.x = 10
-            frame.origin.y = viewSize.height - 20 - 40
-            frame.size = CGSize.init(width: viewSize.width - 20, height: 20)
-            self.textLabel.frame = frame
+            if !self.isNeedUpadteAbstract {
+               frame.origin.y = self.saveBtn.frame.origin.y - 10 - 50   
+            }
+            frame.size = CGSize.init(width: viewSize.width - 20, height: viewSize.height - frame.origin.y)
+            self.abstractView.frame = frame
         }
+        self.reLayoutSubView?()
     }
     
     //MARK: private function
@@ -103,17 +108,18 @@ class PBPageViewController: UIPageViewController,UIPageViewControllerDataSource 
         self.saveBtn.addTarget(self, action: #selector(btnAction(sender:)), for: .touchUpInside)
         self.saveBtn.setTitleColor(.green, for: .normal)
         
-        self.textLabel.backgroundColor = .clear
-        self.textLabel.textColor = .white
-        self.textLabel.lineBreakMode = .byTruncatingTail
-        self.textLabel.text = "test text"
-        self.textLabel.sizeToFit()
+        self.abstractView.backgroundColor = .clear
+        self.abstractView.textColor = .white
+        self.abstractView.text = "test texttest\n texttest texttest\n texttest texttest\n texttest texttest\n texttest texttest\n texttest texttest texttest texttest\n texttest texttest texttest\n texttest texttest]\n texttest texttest texttest texttest\n texttest texttest text"
+        self.abstractView.textAlignment = .left
+        self.abstractView.isEditable = false
+        self.abstractView.isSelectable = false
         
         switch self.showStyle! {
         case .defaultStyle:
-            self.view.addSubview(self.textLabel)
+            self.view.addSubview(self.abstractView)
             fallthrough
-        case .NoTextStyle:
+        case .NoAbstractStyle:
             self.view.addSubview(self.progressLabel)
             self.view.addSubview(self.shareBtn)
             self.view.addSubview(self.saveBtn)
@@ -131,9 +137,28 @@ class PBPageViewController: UIPageViewController,UIPageViewControllerDataSource 
         UIApplication.shared.setStatusBarHidden(false, with: .none)
     }
     
+    /// 隐藏进度条和保存和分享等控件
+    ///
+    /// - Parameter isHidden:
+    fileprivate func hideOtherComponent(isHidden :Bool) {
+        self.progressLabel.isHidden = isHidden
+        self.shareBtn.isHidden = isHidden
+        self.saveBtn.isHidden = isHidden
+        self.abstractView.isHidden = isHidden
+    }
+    
     fileprivate func addChildViewControllers() {
        self.sourceData?.enumerateObjects({[unowned self] (object, index, _) in
             let childController = PBChiledViewController.init(data: object)
+        childController.hideOtherComponent = {[unowned self] (isHidden) in
+            self.hideOtherComponent(isHidden: isHidden)
+        }
+        childController.updateAbstractViewFrame = {[unowned self] (imageFrame) in
+            self.isNeedUpadteAbstract = true
+            var frame = self.abstractView.frame
+            frame.origin.y = imageFrame.origin.y + imageFrame.size.height + 5
+            self.abstractView.frame = frame
+        }
         childController.dismissBlock = {[unowned self] in
             self.hide()
         }
