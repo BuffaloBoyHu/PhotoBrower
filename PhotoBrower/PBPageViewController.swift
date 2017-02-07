@@ -24,13 +24,15 @@ class PBPageViewController: UIPageViewController,UIPageViewControllerDataSource 
     fileprivate var currentIndex : NSInteger = 0
     fileprivate var showStyle : PBStyle? = .OnlyPhotoStyle
     fileprivate var childArray : NSMutableArray? = [] // 子视图数组
-    fileprivate var isNeedUpadteAbstract :Bool = false // 是否更新简介位置
+    fileprivate var isNeedUpadteAbstract :Bool = true // 是否更新简介位置
+    fileprivate var hideStatusBar : Bool = false
     var sharePhotoAction :((Void) ->Void)? // 图片分享
     var shareBtn = UIButton.init(type: UIButtonType.roundedRect) // 分享
     var saveBtn = UIButton.init(type: UIButtonType.roundedRect) // 保存
     var progressLabel = UILabel.init() // 进度
     var abstractView = UITextView.init() // 简介
     var reLayoutSubView :(() -> Void)? //重新布局保存和分享按钮等位置
+    override var prefersStatusBarHidden: Bool{return self.hideStatusBar}
     
     init(sourceData :NSArray?,currentPhotoUrl:String,showStyle :PBStyle) {
         super.init(transitionStyle: .scroll, navigationOrientation: .horizontal, options: [UIPageViewControllerOptionInterPageSpacingKey : 20])
@@ -134,7 +136,8 @@ class PBPageViewController: UIPageViewController,UIPageViewControllerDataSource 
         }
         self.view.removeFromSuperview()
         self.removeFromParentViewController()
-        UIApplication.shared.setStatusBarHidden(false, with: .none)
+        self.hideStatusBar = false
+        
     }
     
     /// 隐藏进度条和保存和分享等控件
@@ -186,18 +189,20 @@ class PBPageViewController: UIPageViewController,UIPageViewControllerDataSource 
     //MARK: private function
     @objc fileprivate func didFinishSavingPhoto(image:UIImage,error:NSError?,info : Any) {
         if error  == nil {
-            let alertView : UIAlertView = UIAlertView.init(title: "保存成功", message: nil, delegate: nil, cancelButtonTitle: "确定")
-            alertView.show()
+            let alertView : UIAlertController = UIAlertController.init(title: "保存成功", message: nil, preferredStyle: .alert)
+            alertView.addAction(.init(title: "确定", style: .destructive, handler: nil))
+            self.present(alertView, animated: true, completion: nil)
             
         }else {
-            let alertView : UIAlertView = UIAlertView.init(title: "保存失败", message: nil, delegate: nil, cancelButtonTitle: "确定")
-            alertView.show()
+            let alertView : UIAlertController = UIAlertController.init(title: "保存失败", message: nil, preferredStyle: .alert)
+            alertView.addAction(.init(title: "确定", style: .destructive, handler: nil))
+            self.present(alertView, animated: true, completion: nil)
         }
     }
     
     //MARK: public function
     public func showInViewController(viewController :UIViewController) {
-        UIApplication.shared.setStatusBarHidden(true, with: .none)
+        self.hideStatusBar = true
         viewController.addChildViewController(self)
         viewController.view.addSubview(self.view)
         UIView.animate(withDuration: animationDuration) {
@@ -226,5 +231,6 @@ class PBPageViewController: UIPageViewController,UIPageViewControllerDataSource 
         index = index! - 1
         return self.childArray?.object(at: index!) as! PBChiledViewController?
     }
+    
     
 }
