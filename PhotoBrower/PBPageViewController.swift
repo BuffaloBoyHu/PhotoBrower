@@ -10,7 +10,7 @@ import UIKit
 
 let animationDuration = 0.3
 
-@objc enum PBStyle : NSInteger {
+@objc public enum PBStyle : NSInteger {
     case defaultStyle // 默认都显示
     case NoAbstractStyle // 没有简介
     case OnlyPhotoStyle // 只显示图片
@@ -18,7 +18,7 @@ let animationDuration = 0.3
 
 @objc(PBPageViewController)
 
-class PBPageViewController: UIPageViewController,UIPageViewControllerDataSource {
+public class PBPageViewController: UIPageViewController,UIPageViewControllerDataSource {
     
     fileprivate var sourceData : NSArray? = nil
     fileprivate var currentIndex : NSInteger = 0
@@ -32,7 +32,7 @@ class PBPageViewController: UIPageViewController,UIPageViewControllerDataSource 
     var progressLabel = UILabel.init() // 进度
     var abstractView = UITextView.init() // 简介
     var reLayoutSubView :(() -> Void)? //重新布局保存和分享按钮等位置
-    override var prefersStatusBarHidden: Bool{return self.hideStatusBar}
+//    override var prefersStatusBarHidden: Bool{return self.hideStatusBar}
     
     init(sourceData :NSArray?,currentPhotoUrl:String,showStyle :PBStyle) {
         super.init(transitionStyle: .scroll, navigationOrientation: .horizontal, options: [UIPageViewControllerOptionInterPageSpacingKey : 20])
@@ -41,11 +41,11 @@ class PBPageViewController: UIPageViewController,UIPageViewControllerDataSource 
         self.showStyle = showStyle
     }
     
-    required init?(coder: NSCoder) {
+    required public init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
     
-    override func viewDidLoad() {
+    override public func viewDidLoad() {
         super.viewDidLoad()
         self.dataSource = self
         self.view.backgroundColor = .black
@@ -54,12 +54,12 @@ class PBPageViewController: UIPageViewController,UIPageViewControllerDataSource 
         
     }
 
-    override func didReceiveMemoryWarning() {
+    override public func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
         // Dispose of any resources that can be recreated.
     }
     
-    override func viewWillLayoutSubviews() {
+    override public func viewWillLayoutSubviews() {
         super.viewWillLayoutSubviews()
         if self.showStyle != .OnlyPhotoStyle {
             let viewSize = self.view.bounds.size
@@ -212,7 +212,7 @@ class PBPageViewController: UIPageViewController,UIPageViewControllerDataSource 
     }
     
     //MARK: UIPageViewControllerDelegate
-    func pageViewController(_ pageViewController: UIPageViewController, viewControllerAfter viewController: UIViewController) -> UIViewController? {
+    public func pageViewController(_ pageViewController: UIPageViewController, viewControllerAfter viewController: UIViewController) -> UIViewController? {
         var index = self.childArray?.index(of: viewController)
         let count = (self.childArray?.count)! - 1
         if index! >= count || index! == NSNotFound {
@@ -223,7 +223,7 @@ class PBPageViewController: UIPageViewController,UIPageViewControllerDataSource 
         
     }
     
-    func pageViewController(_ pageViewController: UIPageViewController, viewControllerBefore viewController: UIViewController) -> UIViewController? {
+    public func pageViewController(_ pageViewController: UIPageViewController, viewControllerBefore viewController: UIViewController) -> UIViewController? {
         var index = self.childArray?.index(of: viewController)
         if index! <= 0 || index! == NSNotFound {
             return nil
