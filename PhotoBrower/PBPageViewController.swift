@@ -9,6 +9,9 @@
 import UIKit
 
 let animationDuration = 0.3
+let shareBtnTag = 10000
+let saveBtnTag = 10001
+
 
 @objc public enum PBStyle : NSInteger {
     case defaultStyle // 默认都显示
@@ -26,12 +29,12 @@ public class PBPageViewController: UIPageViewController,UIPageViewControllerData
     fileprivate var childArray : NSMutableArray? = [] // 子视图数组
     fileprivate var isNeedUpadteAbstract :Bool = true // 是否更新简介位置
     fileprivate var hideStatusBar : Bool = false
-    var sharePhotoAction :((Void) ->Void)? // 图片分享
-    var shareBtn = UIButton.init(type: UIButtonType.roundedRect) // 分享
-    var saveBtn = UIButton.init(type: UIButtonType.roundedRect) // 保存
-    var progressLabel = UILabel.init() // 进度
-    var abstractView = UITextView.init() // 简介
-    var reLayoutSubView :(() -> Void)? //重新布局保存和分享按钮等位置
+    public var sharePhotoAction :((Void) ->Void)? // 图片分享
+    public var shareBtn = UIButton.init(type: UIButtonType.roundedRect) // 分享
+    public var saveBtn = UIButton.init(type: UIButtonType.roundedRect) // 保存
+    public var progressLabel = UILabel.init() // 进度
+    public var abstractView = UITextView.init() // 简介
+    public var reLayoutSubView :(() -> Void)? //重新布局保存和分享按钮等位置
 //    override var prefersStatusBarHidden: Bool{return self.hideStatusBar}
     
     init(sourceData :NSArray?,currentPhotoUrl:String,showStyle :PBStyle) {
@@ -102,12 +105,14 @@ public class PBPageViewController: UIPageViewController,UIPageViewControllerData
         self.shareBtn.alpha = 0.8
         self.shareBtn.setTitle("分享", for: .normal)
         self.shareBtn.addTarget(self, action: #selector(btnAction(sender:)), for: .touchUpInside)
+        self.shareBtn.tag = shareBtnTag
         self.shareBtn.setTitleColor(.green, for: .normal)
         
         self.saveBtn.backgroundColor = UIColor.lightGray
         self.saveBtn.alpha = 0.8
         self.saveBtn.setTitle("保存", for: .normal)
         self.saveBtn.addTarget(self, action: #selector(btnAction(sender:)), for: .touchUpInside)
+        self.saveBtn.tag = saveBtnTag
         self.saveBtn.setTitleColor(.green, for: .normal)
         
         self.abstractView.backgroundColor = .clear
@@ -177,13 +182,14 @@ public class PBPageViewController: UIPageViewController,UIPageViewControllerData
     }
     
     @objc fileprivate func btnAction(sender :UIButton) {
-        let titleStr = sender.title(for: .normal)
-        if titleStr == "保存" {
+        if sender.tag == saveBtnTag {
             if let childController  = self.childArray?[self.currentIndex] as? PBChiledViewController {
                 if let image = childController.imageView.image {
                    UIImageWriteToSavedPhotosAlbum(image, self, #selector(didFinishSavingPhoto(image:error:info:)), nil)
                 }
             }
+        }else if sender.tag == shareBtnTag {
+            self.sharePhotoAction?()
         }
         
     }
