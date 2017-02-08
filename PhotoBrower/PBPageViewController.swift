@@ -37,7 +37,7 @@ public class PBPageViewController: UIPageViewController,UIPageViewControllerData
     public var reLayoutSubView :(() -> Void)? //重新布局保存和分享按钮等位置
 //    override var prefersStatusBarHidden: Bool{return self.hideStatusBar}
     
-    init(sourceData :NSArray?,currentPhotoUrl:String,showStyle :PBStyle) {
+   public init(sourceData :NSArray?,currentPhotoUrl:String,showStyle :PBStyle) {
         super.init(transitionStyle: .scroll, navigationOrientation: .horizontal, options: [UIPageViewControllerOptionInterPageSpacingKey : 20])
         self.sourceData = sourceData
         self.currentIndex = (self.sourceData?.index(of: currentPhotoUrl))!
