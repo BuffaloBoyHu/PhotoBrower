@@ -170,9 +170,9 @@ public class PBPageViewController: UIPageViewController,UIPageViewControllerData
         childController.dismissBlock = {[unowned self] in
             self.hide()
         }
-            childController.tag = index + 1
+            childController.tag = index
             childController.progressBlock = {[unowned self] (index) in
-            self.progressLabel.text = "\(index)/\((self.childArray?.count)!)"
+            self.progressLabel.text = "\(index + 1)/\((self.childArray?.count)!)"
         }
             self.childArray?.add(childController)
        })
@@ -227,7 +227,9 @@ public class PBPageViewController: UIPageViewController,UIPageViewControllerData
             return nil
         }
         index = index! + 1
-        return self.childArray?.object(at: index!) as! PBChiledViewController?
+        let childController = self.childArray?.object(at: index!) as! PBChiledViewController?
+        self.currentIndex = (childController?.tag)!
+        return childController
         
     }
     
@@ -237,7 +239,9 @@ public class PBPageViewController: UIPageViewController,UIPageViewControllerData
             return nil
         }
         index = index! - 1
-        return self.childArray?.object(at: index!) as! PBChiledViewController?
+        let childController = self.childArray?.object(at: index!) as! PBChiledViewController?
+        self.currentIndex = (childController?.tag)!
+        return childController
     }
     
     
