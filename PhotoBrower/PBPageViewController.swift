@@ -180,7 +180,9 @@ public class PBPageViewController: UIPageViewController,UIPageViewControllerData
         let titleStr = sender.title(for: .normal)
         if titleStr == "保存" {
             if let childController  = self.childArray?[self.currentIndex] as? PBChiledViewController {
-                UIImageWriteToSavedPhotosAlbum(childController.imageView.image!, self, #selector(didFinishSavingPhoto(image:error:info:)), nil)
+                if let image = childController.imageView.image {
+                   UIImageWriteToSavedPhotosAlbum(image, self, #selector(didFinishSavingPhoto(image:error:info:)), nil)
+                }
             }
         }
         
